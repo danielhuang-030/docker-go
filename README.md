@@ -26,13 +26,13 @@ docker-compose logs -f
 
 ```shell
 # app-go cli
-docker exec -it app-go bash
+docker exec -it app-go sh
 ```
 
 ### Port
 | service  | port-inside | port-outside  | usage |
 |---|---|---|---|
-| app-go  | - | - | - | 
+| app-go  | - | 13001 | app-go | 
 | app-redis | 6379 | - | redis |
 | app-db | 3306, 33060 | 12006 | mysql |
 | app-pma | 80 | 12010 | phpMyAdmin |
