@@ -1,6 +1,6 @@
 # Ignore folders
 
-app/
+twitter-test-go/
 data/mysql/*
 data/redis/*
 

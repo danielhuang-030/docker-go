@@ -76,16 +76,16 @@ services:
         depends_on:
             - app-redis
 
-#app-go
+#twitter-test-go
     app:
         build:
             context: .
             dockerfile: ./dockerfile/app.dockerfile
-        image: danielhuang-030/app-go:0.0.1
-        container_name: app-go
+        image: danielhuang-030/twitter-test-go:0.0.1
+        container_name: twitter-test-go
         restart: always
         volumes: 
-          - ./app:/usr/app
+          - ./twitter-test-go:/usr/app
         command: air
         ports:
             - "13001:8080"

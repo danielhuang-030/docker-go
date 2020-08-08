@@ -1,11 +1,11 @@
-# docker-go
+# docker-twitter-test-go
 
 ### Introduction
-Docker for app-go
+Docker for [twitter-test-go](https://github.com/danielhuang-030/twitter-test-go)
 
 ### Including
  - [Go 1.14](https://hub.docker.com/_/golang)
- - [Air](github.com/cosmtrek/air)
+ - [Air](https://github.com/cosmtrek/air)
  - [MySQL 5.7](https://hub.docker.com/_/mysql)
  - [Redis](https://hub.docker.com/_/redis)
  - [phpMyAdmin](https://hub.docker.com/r/phpmyadmin/phpmyadmin)
@@ -25,14 +25,14 @@ docker-compose logs -f
 ```
 
 ```shell
-# app-go cli
-docker exec -it app-go sh
+# twitter-test-go cli
+docker exec -it twitter-test-go sh
 ```
 
 ### Port
 | service  | port-inside | port-outside  | usage |
 |---|---|---|---|
-| app-go  | - | 13001 | app-go | 
+| app-go  | 8080 | 13001 | [twitter-test-go](https://github.com/danielhuang-030/twitter-test-go) | 
 | app-redis | 6379 | - | redis |
 | app-db | 3306, 33060 | 12006 | mysql |
 | app-pma | 80 | 12010 | phpMyAdmin |
