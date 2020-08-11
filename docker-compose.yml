@@ -14,7 +14,7 @@ services:
         ports:
             - "12006:3306"
         environment:
-            MYSQL_DATABASE: twitter-test
+            MYSQL_DATABASE: app_db
             MYSQL_ROOT_PASSWORD: root
             TZ: Asia/Taipei
         command: [
@@ -26,8 +26,7 @@ services:
             "--default-authentication-plugin=mysql_native_password"
         ]
         volumes:
-            - ./data/mysql:/var/lib/mysql
-            - ./conf/mysql/conf.d:/etc/mysql/conf.d
+            - ./dockerize/data/mysql:/var/lib/mysql
         networks:
             - app-network
             
@@ -35,12 +34,12 @@ services:
     app-redis:
         build:
             context: .
-            dockerfile: ./dockerfile/redis.dockerfile
+            dockerfile: ./dockerize/dockerfile/redis.dockerfile
         image: danielhuang-030/app-redis:0.0.1
         container_name: app-redis
         restart: always
         volumes:
-            - ./data/redis:/data
+            - ./dockerize/data/redis:/data
         networks:
             - app-network
             
@@ -50,7 +49,7 @@ services:
         container_name: app-pma
         restart: always
         volumes:
-            - ./conf/phpMyAdmin/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
+            - ./dockerize/conf/phpMyAdmin/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
         ports:
             - "12010:80"
         environment:
@@ -76,16 +75,16 @@ services:
         depends_on:
             - app-redis
 
-#twitter-test-go
+#app-go
     app:
         build:
             context: .
-            dockerfile: ./dockerfile/app.dockerfile
-        image: danielhuang-030/twitter-test-go:0.0.1
-        container_name: twitter-test-go
+            dockerfile: ./dockerize/dockerfile/app.dockerfile
+        image: danielhuang-030/app-go:0.0.1
+        container_name: app-go
         restart: always
         volumes: 
-          - ./twitter-test-go:/usr/app
+          - ./:/usr/app
         command: air
         ports:
             - "13001:8080"
