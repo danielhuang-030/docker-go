@@ -1,0 +1,8 @@
+# Ignore folders
+data/mysql/*
+data/redis/*
+tmp/
+
+# others
+*.DS_Store
+*.code-workspace
