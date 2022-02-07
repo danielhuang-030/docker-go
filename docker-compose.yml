@@ -1,25 +1,25 @@
 version: '3'
 
 networks:
-    app-network:
+    gof-network:
         driver: bridge
 
 services:
 
-#app-db
-    app-db:
+#gof-db
+    gof-db:
         image: mysql:5.7
-        container_name: app-db
+        container_name: gof-db
         restart: always
         ports:
-            - "12006:3306"
+            - "${DB_PORT:-39906}:3306"
         environment:
-            MYSQL_DATABASE: app_db
-            MYSQL_ROOT_PASSWORD: root
-            TZ: Asia/Taipei
+            MYSQL_DATABASE: ${DB_DATABASE:-gof}
+            MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+            TZ: ${TZ:-Asia/Taipei}
         command: [
             "--character-set-server=utf8mb4",
-            "--collation-server=utf8mb4_unicode_ci",
+            "--collation-server=utf8mb4_general_ci",
             "--innodb-use-native-aio=0",
             "--server-id=1",
             "--log_bin=ON",
@@ -28,70 +28,70 @@ services:
         volumes:
             - ./dockerize/data/mysql:/var/lib/mysql
         networks:
-            - app-network
+            - gof-network
             
-#app-redis
-    app-redis:
+#gof-redis
+    gof-redis:
         build:
             context: .
             dockerfile: ./dockerize/dockerfile/redis.dockerfile
-        image: danielhuang-030/app-redis:0.0.1
-        container_name: app-redis
+        image: danielhuang-030/gof-redis:0.0.1
+        container_name: gof-redis
         restart: always
         volumes:
             - ./dockerize/data/redis:/data
         networks:
-            - app-network
+            - gof-network
             
 #phpMyAdmin
-    pma:
+    gof-pma:
         image: phpmyadmin/phpmyadmin:latest
-        container_name: app-pma
+        container_name: gof-pma
         restart: always
         volumes:
             - ./dockerize/conf/phpMyAdmin/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
         ports:
-            - "12010:80"
+            - "${PMA_PORT:-39901}:80"
         environment:
-            SESSION_TIMEOUT: 86400
-            PMA_HOST: app-db
+            SESSION_TIMEOUT: ${PMA_SESSION_TIMEOUT:-86400}
+            PMA_HOST: gof-db
         networks:
-            - app-network
+            - gof-network
         depends_on:
-            - app-db
+            - gof-db
             
 #phpRedisAdmin
-    pra:
+    gof-pra:
         image: erikdubbelboer/phpredisadmin:latest
-        container_name: app-pra
+        container_name: gof-pra
         restart: always
         volumes:
             - ./dockerize/conf/phpRedisAdmin/config.sample.inc.php:/src/app/includes/config.sample.inc.php
         ports:
-            - "12011:80"
+            - "${PRA_PORT:-39902}:80"
         environment:
-            REDIS_1_HOST: app-redis
-            REDIS_1_NAME: app-redis
+            REDIS_1_HOST: ${REDIS_HOST:-gof-redis}
+            REDIS_1_NAME: ${REDIS_HOST:-gof-redis}
         networks:
-            - app-network
+            - gof-network
         depends_on:
-            - app-redis
+            - gof-redis
 
-#app-go
-    app:
+#gof
+    gof:
         build:
             context: .
             dockerfile: ./dockerize/dockerfile/app.dockerfile
-        image: danielhuang-030/app-go:0.0.1
-        container_name: app-go
+        image: danielhuang-030/gof:0.0.1
+        container_name: gof
         restart: always
         volumes: 
-          - ./:/usr/app
+          - ./app:/usr/app
         command: air
         ports:
-            - "13001:8080"
+            - "${WEB_PORT:-39900}:8199"
         networks:
-            - app-network
+            - gof-network
         depends_on:
-            - app-db
-            - app-redis
+            - gof-db
+            - gof-redis
