@@ -3,6 +3,10 @@ data/mysql/*
 data/redis/*
 tmp/
 
+app/
+
+.env
+
 # others
 *.DS_Store
 *.code-workspace
