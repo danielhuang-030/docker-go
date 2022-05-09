@@ -1,20 +1,20 @@
 version: '3'
 
 networks:
-    gof-network:
+    golang-network:
         driver: bridge
 
 services:
 
-#gof-db
-    gof-db:
+#golang-db
+    golang-db:
         image: mysql:5.7
-        container_name: gof-db
+        container_name: ${DB_HOST:-golang-db}
         restart: always
         ports:
-            - "${DB_PORT:-39906}:3306"
+            - "${DB_PORT:-30106}:3306"
         environment:
-            MYSQL_DATABASE: ${DB_DATABASE:-gof}
+            MYSQL_DATABASE: ${DB_DATABASE:-golang}
             MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
             TZ: ${TZ:-Asia/Taipei}
         command: [
@@ -28,70 +28,76 @@ services:
         volumes:
             - ./dockerize/data/mysql:/var/lib/mysql
         networks:
-            - gof-network
-            
-#gof-redis
-    gof-redis:
-        build:
-            context: .
-            dockerfile: ./dockerize/dockerfile/redis.dockerfile
-        image: danielhuang-030/gof-redis:0.0.1
-        container_name: gof-redis
+            - golang-network
+
+#golang-redis
+    golang-redis:
+        image: redis:latest
+        container_name: ${REDIS_HOST:-golang-redis}
         restart: always
         volumes:
             - ./dockerize/data/redis:/data
+        ports:
+            - "${REDIS_PORT:-30109}:6379"
+        environment:
+            - TZ=${TZ:-Asia/Taipei}
+            - LANG=en_US.UTF-8
+        logging:
+          driver: "json-file"
+          options:
+            max-size: "1m"
         networks:
-            - gof-network
-            
+            - golang-network
+
 #phpMyAdmin
-    gof-pma:
+    golang-pma:
         image: phpmyadmin/phpmyadmin:latest
-        container_name: gof-pma
+        container_name: golang-pma
         restart: always
         volumes:
             - ./dockerize/conf/phpMyAdmin/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
         ports:
-            - "${PMA_PORT:-39901}:80"
+            - "${PMA_PORT:-30110}:80"
         environment:
             SESSION_TIMEOUT: ${PMA_SESSION_TIMEOUT:-86400}
-            PMA_HOST: gof-db
+            PMA_HOST: ${DB_HOST:-golang-db}
         networks:
-            - gof-network
+            - golang-network
         depends_on:
-            - gof-db
-            
+            - ${DB_HOST:-golang-db}
+
 #phpRedisAdmin
-    gof-pra:
+    golang-pra:
         image: erikdubbelboer/phpredisadmin:latest
-        container_name: gof-pra
+        container_name: golang-pra
         restart: always
         volumes:
             - ./dockerize/conf/phpRedisAdmin/config.sample.inc.php:/src/app/includes/config.sample.inc.php
         ports:
-            - "${PRA_PORT:-39902}:80"
+            - "${PRA_PORT:-30120}:80"
         environment:
-            REDIS_1_HOST: ${REDIS_HOST:-gof-redis}
-            REDIS_1_NAME: ${REDIS_HOST:-gof-redis}
+            REDIS_1_HOST: ${REDIS_HOST:-golang-redis}
+            REDIS_1_NAME: ${REDIS_HOST:-golang-redis}
         networks:
-            - gof-network
+            - golang-network
         depends_on:
-            - gof-redis
+            - ${REDIS_HOST:-golang-redis}
 
-#gof
-    gof:
+#golang-app
+    golang-app:
         build:
             context: .
             dockerfile: ./dockerize/dockerfile/app.dockerfile
-        image: danielhuang-030/gof:0.0.1
-        container_name: gof
+        image: danielhuang-030/golang:0.0.2
+        container_name: ${APP:-golang-app}
         restart: always
-        volumes: 
+        volumes:
           - ./app:/usr/app
         command: air
         ports:
-            - "${WEB_PORT:-39900}:8199"
+            - "${WEB_PORT:-30100}:8199"
         networks:
-            - gof-network
+            - golang-network
         depends_on:
-            - gof-db
-            - gof-redis
+            - ${DB_HOST:-golang-db}
+            - ${REDIS_HOST:-golang-redis}
