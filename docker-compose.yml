@@ -1,4 +1,4 @@
-version: '3'
+version: '3.7'
 
 networks:
     golang-network:
@@ -8,7 +8,7 @@ services:
 
 #golang-db
     golang-db:
-        image: mysql:5.7
+        image: mysql:8.0
         container_name: ${DB_HOST:-golang-db}
         restart: always
         ports:
@@ -17,14 +17,7 @@ services:
             MYSQL_DATABASE: ${DB_DATABASE:-golang}
             MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
             TZ: ${TZ:-Asia/Taipei}
-        command: [
-            "--character-set-server=utf8mb4",
-            "--collation-server=utf8mb4_general_ci",
-            "--innodb-use-native-aio=0",
-            "--server-id=1",
-            "--log_bin=ON",
-            "--default-authentication-plugin=mysql_native_password"
-        ]
+        command: ["--default-authentication-plugin=mysql_native_password", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_general_ci", "--log-bin", "--binlog-format=ROW"]
         volumes:
             - ./dockerize/data/mysql:/var/lib/mysql
         networks:
@@ -32,7 +25,7 @@ services:
 
 #golang-redis
     golang-redis:
-        image: redis:latest
+        image: redis:6
         container_name: ${REDIS_HOST:-golang-redis}
         restart: always
         volumes:
@@ -51,7 +44,7 @@ services:
 
 #phpMyAdmin
     golang-pma:
-        image: phpmyadmin/phpmyadmin:latest
+        image: phpmyadmin/phpmyadmin:5.2
         container_name: golang-pma
         restart: always
         volumes:
@@ -61,6 +54,8 @@ services:
         environment:
             SESSION_TIMEOUT: ${PMA_SESSION_TIMEOUT:-86400}
             PMA_HOST: ${DB_HOST:-golang-db}
+            PMA_USER: root
+            PMA_PASSWORD: ${DB_ROOT_PASSWORD:-root}
         networks:
             - golang-network
         depends_on:
@@ -68,7 +63,7 @@ services:
 
 #phpRedisAdmin
     golang-pra:
-        image: erikdubbelboer/phpredisadmin:latest
+        image: erikdubbelboer/phpredisadmin:1.19
         container_name: golang-pra
         restart: always
         volumes:
@@ -88,12 +83,11 @@ services:
         build:
             context: .
             dockerfile: ./dockerize/dockerfile/app.dockerfile
-        image: danielhuang-030/golang:0.0.2
+        image: danielhuang-030/golang:0.0.3
         container_name: ${APP:-golang-app}
         restart: always
         volumes:
-          - ./app:/usr/app
-        command: air
+          - ./app:/app
         ports:
             - "${WEB_PORT:-30100}:8199"
         networks:
