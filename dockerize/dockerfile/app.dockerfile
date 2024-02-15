@@ -1,7 +1,18 @@
-FROM golang:1.17.9-alpine
+# 使用基於 Alpine 的 Go 映像檔
+FROM golang:1.22-alpine
 
-RUN apk add git
+# 安裝 git 和 air
+RUN apk update && apk add --no-cache git
+RUN go install github.com/cosmtrek/air@latest
 
-WORKDIR /usr/app
+# 設置工作目錄
+WORKDIR /app
 
-RUN go get github.com/cosmtrek/air
+# 將代碼複製到容器中
+# COPY . .
+
+# 對外暴露應用端口
+EXPOSE 8199
+
+# 使用 air 命令啟動應用
+CMD ["air"]
