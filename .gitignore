@@ -1,7 +1,6 @@
 # Ignore folders
-data/mysql/*
-data/redis/*
-tmp/
+dockerize/data/mysql/*
+dockerize/data/redis/*
 
 app/
 
